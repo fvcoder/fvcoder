@@ -23,6 +23,9 @@ importers:
       '@types/inquirer':
         specifier: 9.0.9
         version: 9.0.9
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
       eslint:
         specifier: 9.39.1
         version: 9.39.1(jiti@2.6.1)
