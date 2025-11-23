@@ -1,6 +1,18 @@
 {
   "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+  "git": {
+    "commitMessage": "chore: release @fvcoder/cli v${version}",
+    "tagName": "@fvcoder/cli@${version}",
+    "tagAnnotation": "Release @fvcoder/cli v${version}"
+  },
   "github": {
-    "release": true
+    "release": true,
+    "releaseName": "@fvcoder/cli v${version}"
+  },
+  "npm": {
+    "publish": true
+  },
+  "hooks": {
+    "before:init": ["pnpm run build"]
   }
 }

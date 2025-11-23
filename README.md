@@ -4,7 +4,6 @@
 Mid-Senior Developer | Líder de proyectos | Spiker en GDG El Alto | Voluntario en Microsoft Education Hub
 </p>
 
-
 ## 🚀 Sobre mí
 
 Desarrollador web y móvil con experiencia gestionando y liderando proyectos pequeños y medianos. Apasionado por el trabajo en equipo, la colaboración y el aprendizaje constante. Me especializo en crear software para la gestión de personal y procesos empresariales en Xiara Studios.

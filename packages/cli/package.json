@@ -14,7 +14,6 @@
     "@types/inquirer": "9.0.9",
     "@types/node": "^24.10.1",
     "eslint": "9.39.1",
-    "release-it": "^19.0.6",
     "typescript": "5.9.3",
     "vite": "7.2.4"
   },
