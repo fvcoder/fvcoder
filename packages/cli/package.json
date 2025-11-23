@@ -10,6 +10,11 @@
   "files": [
     "dist"
   ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "release": "release-it"
+  },
   "devDependencies": {
     "@types/inquirer": "9.0.9",
     "@types/node": "^24.10.1",
@@ -21,10 +26,5 @@
     "commander": "14.0.2",
     "husky": "^9.1.7",
     "inquirer": "13.0.1"
-  },
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "release": "release-it"
   }
 }
