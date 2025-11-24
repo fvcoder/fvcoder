@@ -11,7 +11,7 @@
     "releaseName": "@fvcoder/cli v${version}"
   },
   "npm": {
-    "publish": true
+    "publish": false
   },
   "hooks": {
     "before:init": ["pnpm run build"]
