@@ -19,7 +19,6 @@
         "name": "conventionalcommits"
       },
       "infile": "CHANGELOG.md"
-    },
-    "release-it-pnpm": {}
+    }
   }
 }
