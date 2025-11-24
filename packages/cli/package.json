@@ -2,6 +2,17 @@
   "name": "@fvcoder/cli",
   "description": "Generador de proyectos para Fernando Ticona",
   "version": "0.0.1",
+  "author": "Fernando Ticona <fvcoder1@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/fvcoder/fvcoder#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fvcoder/fvcoder.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/fvcoder/fvcoder/issues"
+  },
   "bin": {
     "fvcoder": "./dist/index.js"
   },
@@ -9,6 +20,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

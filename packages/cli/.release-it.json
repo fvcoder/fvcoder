@@ -3,7 +3,8 @@
   "git": {
     "commitMessage": "chore: release @fvcoder/cli v${version}",
     "tagName": "@fvcoder/cli@${version}",
-    "tagAnnotation": "Release @fvcoder/cli v${version}"
+    "tagAnnotation": "Release @fvcoder/cli v${version}",
+    "requireCleanWorkingDir": false
   },
   "github": {
     "release": true,
