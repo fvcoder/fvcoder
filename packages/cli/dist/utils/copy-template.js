@@ -1,22 +1,29 @@
-import process from "node:process";
-import url from "node:url";
-import fs from "node:fs";
-import path from "node:path";
-import stream from "node:stream";
-import { promisify } from "node:util";
-import { fetch } from "@remix-run/web-fetch";
-import gunzip from "gunzip-maybe";
-import tar from "tar-fs";
-import { ProxyAgent } from "proxy-agent";
-import { color } from "./color";
-import { isUrl } from "./isUrl";
-const defaultAgent = new ProxyAgent();
-const httpsAgent = new ProxyAgent();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CopyTemplateError = void 0;
+exports.copyTemplate = copyTemplate;
+const node_process_1 = __importDefault(require("node:process"));
+const node_url_1 = __importDefault(require("node:url"));
+const node_fs_1 = __importDefault(require("node:fs"));
+const node_path_1 = __importDefault(require("node:path"));
+const node_stream_1 = __importDefault(require("node:stream"));
+const node_util_1 = require("node:util");
+const web_fetch_1 = require("@remix-run/web-fetch");
+const gunzip_maybe_1 = __importDefault(require("gunzip-maybe"));
+const tar_fs_1 = __importDefault(require("tar-fs"));
+const proxy_agent_1 = require("proxy-agent");
+const color_1 = require("./color");
+const isUrl_1 = require("./isUrl");
+const defaultAgent = new proxy_agent_1.ProxyAgent();
+const httpsAgent = new proxy_agent_1.ProxyAgent();
 httpsAgent.protocol = "https:";
 function agent(url) {
     return new URL(url).protocol === "https:" ? httpsAgent : defaultAgent;
 }
-export async function copyTemplate(template, destPath, options) {
+async function copyTemplate(template, destPath, options) {
     let { log = () => { } } = options;
     /**
      * Valid templates are:
@@ -30,7 +37,7 @@ export async function copyTemplate(template, destPath, options) {
         if (isLocalFilePath(template)) {
             log(`Using the template from local file at "${template}"`);
             let filepath = template.startsWith("file://")
-                ? url.fileURLToPath(template)
+                ? node_url_1.default.fileURLToPath(template)
                 : template;
             let isLocalDir = await copyTemplateFromLocalFilePath(filepath, destPath);
             return isLocalDir ? { localTemplateDirectory: filepath } : undefined;
@@ -45,12 +52,12 @@ export async function copyTemplate(template, destPath, options) {
             await copyTemplateFromGithubRepoUrl(template, destPath, options);
             return;
         }
-        if (isUrl(template)) {
+        if ((0, isUrl_1.isUrl)(template)) {
             log(`Using the template from "${template}"`);
             await copyTemplateFromGenericUrl(template, destPath, options);
             return;
         }
-        throw new CopyTemplateError(`"${color.bold(template)}" is an invalid template. Run ${color.bold("create-react-router --help")} to see supported template formats.`);
+        throw new CopyTemplateError(`"${color_1.color.bold(template)}" is an invalid template. Run ${color_1.color.bold("create-react-router --help")} to see supported template formats.`);
     }
     catch (error) {
         await options.onError(error);
@@ -59,7 +66,7 @@ export async function copyTemplate(template, destPath, options) {
 function isLocalFilePath(input) {
     try {
         return (input.startsWith("file://") ||
-            fs.existsSync(path.isAbsolute(input) ? input : path.resolve(process.cwd(), input)));
+            node_fs_1.default.existsSync(node_path_1.default.isAbsolute(input) ? input : node_path_1.default.resolve(node_process_1.default.cwd(), input)));
     }
     catch (_) {
         return false;
@@ -84,7 +91,7 @@ async function copyTemplateFromLocalFilePath(filePath, destPath) {
         await extractLocalTarball(filePath, destPath);
         return false;
     }
-    if (fs.statSync(filePath).isDirectory()) {
+    if (node_fs_1.default.statSync(filePath).isDirectory()) {
         // If our template is just a directory on disk, return true here, and we'll
         // just copy directly from there instead of "extracting" to a temp
         // directory first
@@ -92,10 +99,10 @@ async function copyTemplateFromLocalFilePath(filePath, destPath) {
     }
     throw new CopyTemplateError("The provided template is not a valid local directory or tarball.");
 }
-const pipeline = promisify(stream.pipeline);
+const pipeline = (0, node_util_1.promisify)(node_stream_1.default.pipeline);
 async function extractLocalTarball(tarballPath, destPath) {
     try {
-        await pipeline(fs.createReadStream(tarballPath), gunzip(), tar.extract(destPath, { strip: 1 }));
+        await pipeline(node_fs_1.default.createReadStream(tarballPath), (0, gunzip_maybe_1.default)(), tar_fs_1.default.extract(destPath, { strip: 1 }));
     }
     catch (error) {
         throw new CopyTemplateError("There was a problem extracting the file from the provided template." +
@@ -141,7 +148,7 @@ async function downloadAndExtractTarball(downloadPath, tarballUrl, { token, file
         let releaseUrl = info.tag === "latest"
             ? `https://api.github.com/repos/${info.owner}/${info.name}/releases/latest`
             : `https://api.github.com/repos/${info.owner}/${info.name}/releases/tags/${info.tag}`;
-        let response = await fetch(releaseUrl, {
+        let response = await (0, web_fetch_1.fetch)(releaseUrl, {
             agent: agent("https://api.github.com"),
             headers,
         });
@@ -170,7 +177,7 @@ async function downloadAndExtractTarball(downloadPath, tarballUrl, { token, file
         resourceUrl = `https://api.github.com/repos/${info.owner}/${info.name}/releases/assets/${assetId}`;
         headers.Accept = "application/octet-stream";
     }
-    let response = await fetch(resourceUrl, {
+    let response = await (0, web_fetch_1.fetch)(resourceUrl, {
         agent: agent(resourceUrl),
         headers,
     });
@@ -185,14 +192,14 @@ async function downloadAndExtractTarball(downloadPath, tarballUrl, { token, file
     }
     // file paths returned from GitHub are always unix style
     if (filePath) {
-        filePath = filePath.split(path.sep).join(path.posix.sep);
+        filePath = filePath.split(node_path_1.default.sep).join(node_path_1.default.posix.sep);
     }
     let filePathHasFiles = false;
     try {
-        let input = new stream.PassThrough();
+        let input = new node_stream_1.default.PassThrough();
         // Start reading stream into passthrough, don't await to avoid buffering
         writeReadableStreamToWritable(response.body, input);
-        await pipeline(input, gunzip(), tar.extract(downloadPath, {
+        await pipeline(input, (0, gunzip_maybe_1.default)(), tar_fs_1.default.extract(downloadPath, {
             map(header) {
                 let originalDirName = header.name.split("/")[0];
                 header.name = header.name.replace(`${originalDirName}/`, "");
@@ -200,10 +207,10 @@ async function downloadAndExtractTarball(downloadPath, tarballUrl, { token, file
                     // Include trailing slash on startsWith when filePath doesn't include
                     // it so something like `templates/basic` doesn't inadvertently
                     // include `templates/basic-javascript/*` files
-                    if ((filePath.endsWith(path.posix.sep) &&
+                    if ((filePath.endsWith(node_path_1.default.posix.sep) &&
                         header.name.startsWith(filePath)) ||
-                        (!filePath.endsWith(path.posix.sep) &&
-                            header.name.startsWith(filePath + path.posix.sep))) {
+                        (!filePath.endsWith(node_path_1.default.posix.sep) &&
+                            header.name.startsWith(filePath + node_path_1.default.posix.sep))) {
                         filePathHasFiles = true;
                         header.name = header.name.replace(filePath, "");
                     }
@@ -253,7 +260,7 @@ async function writeReadableStreamToWritable(stream, writable) {
     }
 }
 function isValidGithubRepoUrl(input) {
-    if (!isUrl(input)) {
+    if (!(0, isUrl_1.isUrl)(input)) {
         return false;
     }
     try {
@@ -275,7 +282,7 @@ function isValidGithubRepoUrl(input) {
     }
 }
 function isGithubRepoShorthand(value) {
-    if (isUrl(value)) {
+    if ((0, isUrl_1.isUrl)(value)) {
         return false;
     }
     // This supports :owner/:repo and :owner/:repo/nested/path, e.g.
@@ -335,9 +342,10 @@ function getRepoInfo(validatedGithubUrl) {
         filePath: filePath === "" || filePath === "/" ? null : filePath,
     };
 }
-export class CopyTemplateError extends Error {
+class CopyTemplateError extends Error {
     constructor(message) {
         super(message);
         this.name = "CopyTemplateError";
     }
 }
+exports.CopyTemplateError = CopyTemplateError;

@@ -18,16 +18,16 @@ importers:
   packages/cli:
     dependencies:
       '@remix-run/web-fetch':
-        specifier: ^4.4.2
+        specifier: 4.4.2
         version: 4.4.2
       chalk:
-        specifier: ^5.6.2
+        specifier: 5.6.2
         version: 5.6.2
       commander:
         specifier: 14.0.2
         version: 14.0.2
       gunzip-maybe:
-        specifier: ^1.4.2
+        specifier: 1.4.2
         version: 1.4.2
       husky:
         specifier: ^9.1.7
@@ -36,10 +36,10 @@ importers:
         specifier: 13.0.1
         version: 13.0.1(@types/node@24.10.1)
       proxy-agent:
-        specifier: ^6.5.0
+        specifier: 6.5.0
         version: 6.5.0
       tar-fs:
-        specifier: ^3.1.1
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@types/gunzip-maybe':

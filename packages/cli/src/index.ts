@@ -18,7 +18,7 @@ program
 program
   .command('new [name]')
   .description("Crea un proyecto desde una plantilla")
-  .option('-t, --template', 'Nombre de la plantilla', 'react-router-dom-framework')
+  .option('-t, --template', 'Nombre de la plantilla')
   .action(newCommand)
 
 program.parse(process.argv);

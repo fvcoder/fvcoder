@@ -1,12 +1,53 @@
-import inquirer from 'inquirer';
-import * as fs from 'fs';
-import * as path from 'path';
-import { copyTemplate, CopyTemplateError } from '../utils/copy-template';
-import { error } from '../utils/error';
-export async function newCommand(projectName = "", options) {
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.newCommand = newCommand;
+const inquirer_1 = __importDefault(require("inquirer"));
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
+const copy_template_1 = require("../utils/copy-template");
+const error_1 = require("../utils/error");
+const promises_1 = require("fs/promises");
+async function newCommand(projectName = "", options) {
+    const projectDir = path.join(process.cwd(), projectName);
     let name = projectName;
     if (!name) {
-        const nameAnswer = await inquirer.prompt([
+        const nameAnswer = await inquirer_1.default.prompt([
             {
                 type: 'input',
                 name: 'projectName',
@@ -24,107 +65,39 @@ export async function newCommand(projectName = "", options) {
         ]);
         name = nameAnswer.projectName;
     }
-    /*
-    const manifest = await (await fetch("https://raw.githubusercontent.com/fvcoder/templates/refs/heads/main/manifest.json")).json()
-
-    console.log(manifest)
-    */
-    const manifest = [
-        { template: 'next', stack: ['Tailwind'] },
-        { template: 'react', stack: [] },
-        { template: 'react-router-dom-framework', stack: ['Tailwind'] }
-    ];
-    const { template } = await inquirer.prompt([
-        {
-            type: 'rawlist',
-            name: 'template',
-            message: `Selecciona una plantilla`,
-            choices: manifest.map((x) => ({
-                name: `${x.template} (${x.stack.join(", ")})`,
-                value: x.template
-            }))
-        }
-    ]);
-    const s = await copyTemplate(`fvcoder/templates/${template}`, path.join(process.cwd()), {
+    const manifest = await (await fetch("https://raw.githubusercontent.com/fvcoder/templates/refs/heads/main/manifest.json")).json();
+    let template = options.template;
+    if (!template) {
+        const templateAnswer = await inquirer_1.default.prompt([
+            {
+                type: 'rawlist',
+                name: 'template',
+                message: `Selecciona una plantilla`,
+                choices: manifest.map((x) => ({
+                    name: `${x.template} (${x.stack.join(", ")})`,
+                    value: x.template
+                }))
+            }
+        ]);
+        template = templateAnswer.template;
+    }
+    await (0, copy_template_1.copyTemplate)(`fvcoder/templates/${template}`, projectDir, {
         async onError(err) {
-            error("Oh no!", err instanceof CopyTemplateError
+            (0, error_1.error)("Oh no!", err instanceof copy_template_1.CopyTemplateError
                 ? err.message
-                : "Something went wrong. Run `create-react-router --debug` to see more info.\n\n" +
+                : "Something went wrong.\n\n" +
                     "Open an issue to report the problem at " +
                     "https://github.com/fvcoder/fvcoder/issues/new");
             throw err;
         },
     });
-    console.log(s);
-    /*
-
-    const templatesDir = path.join(__dirname, '..', '..', '..', '..', 'templates');
-    const templatePath = path.join(templatesDir, template);
-
-    if (!fs.existsSync(templatePath)) {
-        const availableTemplates = fs.existsSync(templatesDir)
-            ? fs.readdirSync(templatesDir).filter(file =>
-                fs.statSync(path.join(templatesDir, file)).isDirectory()
-              )
-            : [];
-
-        if (availableTemplates.length === 0) {
-            console.error('❌ No hay plantillas disponibles en /templates');
-            process.exit(1);
-        }
-
-        const templateAnswer = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'template',
-                message: `La plantilla "${template}" no existe. Selecciona una plantilla:`,
-                choices: availableTemplates
-            }
-        ]);
-        template = templateAnswer.template;
-    }
-
-    // Crear el proyecto desde la plantilla
-    await createProjectFromTemplate(name, template, templatesDir);
-    */
-}
-async function createProjectFromTemplate(projectName, template, templatesDir) {
-    const templatePath = path.join(templatesDir, template);
-    const targetPath = path.join(process.cwd(), projectName);
-    try {
-        console.log(`\n📦 Creando proyecto "${projectName}" desde la plantilla "${template}"...\n`);
-        // Verificar que el directorio destino no exista
-        if (fs.existsSync(targetPath)) {
-            console.error(`❌ El directorio "${projectName}" ya existe`);
-            process.exit(1);
-        }
-        // Copiar la plantilla
-        copyDirectory(templatePath, targetPath);
-        console.log(`✅ Proyecto creado exitosamente en: ${targetPath}`);
-        console.log(`\n📝 Próximos pasos:`);
-        console.log(`   cd ${projectName}`);
-        console.log(`   npm install`);
-        console.log(`   npm run dev\n`);
-    }
-    catch (error) {
-        console.error('❌ Error al crear el proyecto:', error);
-        process.exit(1);
-    }
-}
-function copyDirectory(source, destination) {
-    // Crear el directorio destino
-    fs.mkdirSync(destination, { recursive: true });
-    // Leer el contenido del directorio origen
-    const entries = fs.readdirSync(source, { withFileTypes: true });
-    for (const entry of entries) {
-        const sourcePath = path.join(source, entry.name);
-        const destPath = path.join(destination, entry.name);
-        if (entry.isDirectory()) {
-            copyDirectory(sourcePath, destPath);
-        }
-        else {
-            // Copiar archivo
-            fs.copyFileSync(sourcePath, destPath);
-        }
+    const packageJsonDir = path.join(projectDir, 'package.json');
+    if (fs.existsSync(packageJsonDir)) {
+        const packageJson = JSON.parse(String(await (0, promises_1.readFile)(packageJsonDir)));
+        const packageJsonData = {
+            name: projectName,
+            ...packageJson,
+        };
+        await (0, promises_1.writeFile)(packageJsonDir, JSON.stringify(packageJsonData, null, 2));
     }
 }
