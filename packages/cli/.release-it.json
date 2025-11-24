@@ -2,5 +2,10 @@
   "$schema": "https://unpkg.com/release-it/schema/release-it.json",
   "hooks": {
     "before:init": ["pnpm run build"]
+  },
+  "plugins": {
+    "release-it-pnpm": {
+      "inFile": "CHANGELOG.md"
+    }
   }
 }
